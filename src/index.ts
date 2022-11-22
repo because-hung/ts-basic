@@ -209,3 +209,118 @@ const live2 = new Live2('live2')
 
 
 // --- interface 透過 class 去實作 ---
+
+interface CarProps {  // 可以 export
+  name: string
+  age: number
+  start: () => void
+}
+
+class Car implements CarProps {
+  name: string
+  age: number
+
+  constructor(name: string, age: number){
+    this.name = name
+    this.age = age
+  }
+
+  start() {}
+}
+
+// --- 泛型 ---  // 我去調用這個 function 的時候  才去定義他是甚麼類型
+
+  // func
+
+function print<T> (data: T) {  // T 可以自己取名
+  console.log('data', data)
+}
+
+print<number>(999)
+print<string>('Barry')
+print<boolean>(true)
+
+  // class
+
+class Print<T> {
+  data: T
+  constructor(d: T) {
+    this.data = d
+  }
+}
+
+const p = new Print<number>(999)
+const p1 = new Print<string>('bruce')
+console.log('p', p)
+console.log('p1', p1)
+
+// --- utility ---  有 Ts 寫好的工具 可以去引用
+
+// record
+
+// 定義兩個type 帶入物件
+
+interface CatInfo {
+  age: number;
+  breed: string;
+}
+ 
+type CatName = "miffy" | "boris" | "mordred";
+
+// key - CatName
+// value - CatInfo
+const cats: Record<CatName, CatInfo> = {
+  miffy: { age: 10, breed: "Persian" },
+  boris: { age: 5, breed: "Maine Coon" },
+  mordred: { age: 16, breed: "British Shorthair" },
+};
+
+console.log(cats)
+
+//  不指定的方向
+
+const obj1: Record<string, boolean> = {
+  name: true,
+  //age: 123  - number - error
+}
+
+//  pick
+
+  // interface 裡面有東西可以重複共用  在新增 type 的時候 pick 出來 加入
+  // 可以從現有的 interface 去建立一個全新的  type
+
+// interface Todo {
+//     title: string;
+//     description: string;
+//     completed: boolean;
+// }
+   
+// type TodoPreview = Pick<Todo, "title" | "completed">;
+   
+// const todo: TodoPreview = {
+//     title: "Clean room",
+//     completed: false,
+// };
+   
+// todo;
+
+// omit
+
+  // 跟 pick 相反  去省略掉不要的元素
+
+interface Todo {
+    title: string;
+    description: string;
+    completed: boolean;
+    createdAt: number;
+}
+   
+type TodoPreview = Omit<Todo, "description">;
+   
+const todo: TodoPreview = {
+    title: "Clean room",
+    completed: false,
+    createdAt: 1615544252770,
+};
+   
+todo;  
