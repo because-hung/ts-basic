@@ -1,4 +1,19 @@
 // ===== undefined 和 null =====
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
 var und = undefined;
 var nll = null;
 // undefined 和 null 都可以作為其他類型的子類型  把 undefined 和 null 賦值給其他類型的變數 如 number類型的變數
@@ -199,3 +214,93 @@ var Person4 = /** @class */ (function () {
 // 建構創造對象 進行初始化操作
 var person4 = new Person4('heyna', 20, '男');
 person4.sayHi();
+// ===== 繼承  =====
+// class 與 class 之間的關係
+// 繼承後 class 與 class 之間的叫法  
+// A繼承B  A為子類  B為父類
+var Person5 = /** @class */ (function () {
+    // 定義建構式  用來創造對象  對屬性的值做初始化
+    function Person5(name, age, gender) {
+        // 更新對象中屬性的值
+        this.name = name;
+        this.age = age;
+        this.gender = gender;
+    }
+    // 定義方法 (行為)
+    Person5.prototype.sayHi = function () {
+        console.log("hello my name is ".concat(this.name));
+    };
+    return Person5;
+}());
+// extend 
+var Student = /** @class */ (function (_super) {
+    __extends(Student, _super);
+    function Student(name, age, gender, desc) {
+        var _this = _super.call(this, name, age, gender) || this;
+        _this.desc = desc;
+        return _this;
+    }
+    Student.prototype.show = function () {
+        console.log("hello my desc is ".concat(this.desc));
+    };
+    return Student;
+}(Person5));
+var person6 = new Person5("kT", 84, "boy");
+person6.sayHi();
+var stu = new Student('TT', 85, 'Girl', 'pretty');
+stu.sayHi();
+stu.show();
+// ===== 多態 =====
+// 父類型引用子類型的對象, 不同類型的對象針對相同的方法, 產生不同的行為
+var Animal = /** @class */ (function () {
+    function Animal(name) {
+        this.name = name;
+    }
+    Animal.prototype.run = function (meter) {
+        if (meter === void 0) { meter = 0; }
+        console.log("\u8DD1\u4E86".concat(meter, "\u7C73"), this.name);
+    };
+    return Animal;
+}());
+// 子類
+var Dog = /** @class */ (function (_super) {
+    __extends(Dog, _super);
+    function Dog(name) {
+        return _super.call(this, name) || this; // 調用父類構造函數  初始化子類屬性
+    }
+    Dog.prototype.run = function (meter) {
+        if (meter === void 0) { meter = 5; }
+        console.log("\u8DD1\u4E86".concat(meter, "\u7C73"), this.name);
+    };
+    return Dog;
+}(Animal));
+var Cat = /** @class */ (function (_super) {
+    __extends(Cat, _super);
+    function Cat(name) {
+        return _super.call(this, name) || this;
+    }
+    Cat.prototype.run = function (meter) {
+        if (meter === void 0) { meter = 10; }
+        console.log("\u8DD1\u4E86".concat(meter, "\u7C73"), this.name);
+    };
+    return Cat;
+}(Animal));
+// 實例化
+var ani = new Animal('動物');
+ani.run();
+var dog = new Dog('來福');
+dog.run();
+var cat = new Cat('咪咪');
+cat.run();
+console.log('=============');
+// 多態  --  type 類型 -> 父類  調用方法 -> 子類
+var dog1 = new Dog('來福1');
+dog.run();
+var cat1 = new Cat('咪咪1');
+cat.run();
+console.log('=============');
+function showRun(ani) {
+    ani.run();
+}
+showRun(dog1);
+showRun(cat1);

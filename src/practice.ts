@@ -352,5 +352,120 @@ class Person4 {
 const person4 = new Person4('heyna', 20, '男')
 person4.sayHi()
 
+// ===== 繼承  =====
+
+// class 與 class 之間的關係
+// 繼承後 class 與 class 之間的叫法  
+// A繼承B  A為子類  B為父類
+
+class Person5 {
+  // 定義屬性
+  name: string
+  age: number
+  gender: string
+  
+  // 定義建構式  用來創造對象  對屬性的值做初始化
+  constructor(name: string, age: number, gender: string) {
+    // 更新對象中屬性的值
+    this.name = name
+    this.age = age
+    this.gender = gender
+  }
+  
+  // 定義方法 (行為)
+  sayHi(){
+    console.log(`hello my name is ${this.name}`)
+  }
+}
+
+// extend 
+
+class Student extends Person5 {
+  desc: string;  // 新增  需要加上這個屬性  不然會有 error
+
+  constructor(name: string, age: number, gender: string, desc: string) {
+    super(name, age, gender)
+    this.desc = desc
+  }
+show(){
+  console.log(`hello my desc is ${this.desc}`)
+}
+// sayHi() {  // 不用 super 也行
+//   super.sayHi()
+// }  
+
+}
+
+const person6 = new Person5("kT", 84, "boy")
+person6.sayHi()
+const stu = new Student('TT', 85, 'Girl', 'pretty')
+stu.sayHi()
+stu.show()
+
+// ===== 多態 =====
+
+// 父類型引用子類型的對象, 不同類型的對象針對相同的方法, 產生不同的行為
+
+class Animal { // 父類
+name: string
+
+constructor(name: string) {
+  this.name = name
+}
+
+run(meter: number = 0){
+  console.log(`跑了${meter}米`, this.name)
+}
+}
+
+// 子類
+
+class Dog extends Animal {
+  constructor(name: string) {
+    super(name) // 調用父類構造函數  初始化子類屬性
+  }
+  run(meter: number = 5){
+    console.log(`跑了${meter}米`, this.name)
+  }
+}
+
+class Cat extends Animal {
+  constructor(name: string) {
+    super(name)
+  }
+  run(meter: number = 10){
+    console.log(`跑了${meter}米`, this.name)
+  }
+}
+
+// 實例化
+
+const ani: Animal = new Animal('動物')
+ani.run()
+
+const dog: Dog = new Dog('來福')
+dog.run()
+
+const cat: Cat = new Cat('咪咪')
+cat.run()
+
+console.log('=============')
+
+// 多態  --  type 類型 -> 父類  調用方法 -> 子類
+
+const dog1: Animal = new Dog('來福1')
+dog.run()
+
+const cat1: Animal  = new Cat('咪咪1')
+cat.run()
+
+console.log('=============')
+
+function showRun(ani: Animal){
+  ani.run()
+}
+
+showRun(dog1)
+showRun(cat1)
 
 
