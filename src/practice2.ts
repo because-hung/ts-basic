@@ -144,5 +144,70 @@ Person10.name1 = '佐助'
 console.log(Person10.name1)
 Person10.eat()
 
+// ===== 抽象類 class =====
+// 抽象 abstract
+// 抽象類的作用是為子類服務的
+// 抽象方法裡不能有具體的行為實現, 可以包含一般正常的實例方法, 抽象變數屬性也是一樣
+// 抽象類不能被實例化, 是為了子類進行實例化及實現父類的抽象方法
+
+// 舉例來說  定義一個 class Animal 和 method eat()  動物都會吃飯  但吃飯的方式不一樣(坐著吃 趴著吃)
+// 吃飯總行為(大方向行為)由父類抽象方法定義  吃飯的方式不一樣(細節)由子類方法定義
+
+abstract class Animal2 {
+  abstract name:string  // 抽象變數屬性
+  // 抽象方法
+  abstract eat()
+  // 抽象方法 不能有具體的行為實現
+  //  abstract eat(){
+  //   console.log('eat meat')  // error
+  // }
+ run(){
+  console.log('run')
+ }
+
+}
+
+// 不能實例化 抽象類的對象
+// const ani = new Animal2()  // error
+
+class Dog2 extends Animal2 {
+  // 重新實現父類的抽象方法  這也是當前子類的實例方法
+  name: string = 'lucky'
+  eat() {
+    console.log('sit to eat')
+  }
+}
+
+const dog2 = new Dog2()
+dog2.eat()
+// 呼叫的是父類裡的實例方法
+dog2.run()
+console.log('name for dog2', dog2.name)
 
 
+// ===== 函數 =====
+
+// 冒號後面是 函數 return 回傳值的類型
+function add(x: string, y: string): string {
+  return x + y
+}
+
+const result1 = add('10','20')
+console.log(result1)
+
+const add2 = function(x: number, y: number): number {
+  return x + y
+}
+
+console.log(add2(1, 5))
+
+// 函數完整的寫法
+// add3 -> 變數名
+// (x: number, y: number) => number -> 函數的類型
+// function(x: number, y: number): number { return x + y } 符合函數類型的值
+
+const add3: (x: number, y: number) => number  = function(x: number, y: number): number {
+  return x + y
+}
+
+console.log(add3(10, 50))
