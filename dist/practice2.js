@@ -199,3 +199,50 @@ var add3 = function (x, y) {
     return x + y;
 };
 console.log(add3(10, 50));
+// ===== 可選參數 和 預設參數 =====
+// 使用 ? 參數就會變可選參數  不一定是必填  可填可不填
+// 定義一個函數
+// 需求: 如果不傳入參數  那return 預設的姓氏
+// 需求: 如果只傳入姓氏 return 姓氏
+// 需求: 如果傳入姓和名 可以得到名字
+var getFullName = function (firstName, lastName) {
+    if (firstName === void 0) { firstName = 'NT'; }
+    if (lastName) {
+        return firstName + '_' + lastName;
+    }
+    else {
+        return firstName;
+    }
+};
+console.log(getFullName());
+console.log(getFullName('30'));
+console.log(getFullName('30', 'money'));
+// ===== 剩餘參數 =====
+// ...args: string[] 為 剩餘參數, 是一個 array
+// 剩餘參數 必須為參數位置中的 最後一個參數
+function showMsg(str) {
+    var args = [];
+    for (var _i = 1; _i < arguments.length; _i++) {
+        args[_i - 1] = arguments[_i];
+    }
+    console.log(str); // a
+    console.log.apply(// a
+    console, args); // b c d e
+    console.log(args); // ['b', 'c', 'd', 'e']
+}
+showMsg('a', 'b', 'c', 'd', 'e');
+// 定義
+function add4(x, y) {
+    if (typeof x === 'string' && typeof y === 'string') {
+        return x + y; // 字串拼接
+    }
+    else if (typeof x === 'number' && typeof y === 'number') {
+        return x + y; // 數字相加
+    }
+}
+console.log(add4('little', 'cat'));
+console.log(add4(10, 20));
+// // 用重載的話  如果 x 和 y 輸入不一樣  ts 會報錯  就可以避免 bug
+// // 沒用重載的話  ts 不會報錯  輸出為 undefined 會產生 bug
+// console.log(add4('dog', 40))  // error
+// console.log(add4(30, 'milk')) // error
