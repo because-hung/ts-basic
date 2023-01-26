@@ -20,6 +20,11 @@ let ary1: number[] = [10, 20, 30]
 
 let ary2: Array<number> = [100, 200, 300]
 
+// Readonly Array
+
+let list1: readonly number[] = [1, 2, 3]; // 不能修改 Array 裡的元素
+let list2: ReadonlyArray<number> = [1, 2, 3]; // 等同於上面的寫法
+
 // ===== 元組 =====
 
 // 定義數組的時候  類型和數據的個數位置  就已經設定.限定好了
@@ -80,6 +85,7 @@ console.log(Gender.男) // 1
 // ===== any =====
 // 任意類型
 // 還不清楚類型  可能來自動態 輸入 第三方套件  可以存入各種類型
+// 只要遇到 any 型別，TS 就會跳過檢查系統，不會進行型別檢查
 
 let any1: any = 100
 any1 = "test any"
@@ -93,7 +99,139 @@ let ary4: any[] = [100, "str", true]
 
 // console.log(ary4[0].split(''))
 
+// ===== unkown =====
+
+// any vs unknow
+
+// 最大的差異在於 unkown 只能指派給unknown / any 型別, 這些以外的不行, 也禁止操作屬性或方法
+
+// unknown 和 any 一樣可以接受任何型別賦值
+
+let valUn: unknown;
+
+valUn = true;             // 布林型別，OK
+valUn = 18;               // 數字型別，OK
+valUn = "Hello World";    // 字串型別，OK
+valUn = [];               // 陣列型別，OK
+valUn = {};               // 基礎物件型別，OK
+valUn = null;             // null型別，OK
+valUn = undefined;        // undefined型別，OK
+valUn = new TypeError();  // Error物件，OK
+valUn = Symbol("type");   // Symbol型別，OK
+
+// unkown 只能指派給unknown / any 型別, 這些以外的不行
+
+let val: unknown;
+
+let val2: unknown = value;   // unknown型別，OK
+let val3: any = value;       // any型別，OK
+// let val3: boolean = val;   // 布林型別，Error
+// let val4: number = val;    // 數字型別，Error
+// let val5: string = val;    // 字串型別，Error
+// let val6: object = val;    // 物件型別，Error
+// let val7: any[] = val;     // 空陣列，Error
+// let val8: void = val;      // 空值，Error
+
+
+// unknown 禁止操作屬性或方法
+
+let val4: unknown;
+
+// val4.length;   // Error
+// val4.trim();   // Error
+// val4();        // Error
+// new val4();    // Error
+// val4[0];       // Error
+
+// 實作
+
+const foo1: unknown = 10;
+
+// const bar3: number = foo // error -> unknown 只能指派給 unknown
+
+// Type Guard 型別檢測
+// 利用 if 限縮了型別，
+// 因此 TS 可以推斷 if 裡面的型別
+
+// foo1.toFixed(1); // error! 即使目前實際型別是數字，仍不能直接對 unknown 操作
+
+if (typeof foo1 === 'number') {
+  foo1.toFixed(1); // ok. TypeScript 推斷是 number 型別
+}
+
+if (typeof foo1 === 'string') {
+  foo1.toUpperCase(); // ok. TypeScript 推斷是 string 型別
+}
+
+const foo2 = foo1 as string; // 強制轉型
+foo2.toUpperCase(); // ok. 因為 foo2 現在被轉型成 string 型別
+
+// 註記 / 斷言
+
+// ex 1
+
+const myPokémonJsonString =`[
+  {
+    "name": "皮卡丘",
+    "level": 5,
+    "isNormal": true
+  },
+  {
+    "name": "閃電鳥",
+    "level": 99,
+    "isNormal": false
+  },
+  {
+    "name": "大蔥鴨",
+    "level": 26,
+    "isNormal": true
+  },
+]`;
+
+function safelyParseJson(jsonString: string): unknown {
+  return JSON.parse(jsonString);
+}
+
+const getMyPokémon2 = safelyParseJson(myPokémonJsonString);
+
+interface IPokémon {
+  name: string;
+  level: number;
+  isNormal: boolean;
+}
+
+(getMyPokémon2 as IPokémon[]).forEach((item) => {
+  console.log(item);
+})
+
+// ex 2
+
+const value5: unknown = "Hello World";
+const someString: string = value5 as string;
+const otherString = someString.toUpperCase();  // "HELLO WORLD"
+
+// 要注意的是：TS 不會執行任何特殊檢查來確保型別斷言是有效的。
+// 如果斷言錯誤的型別，雖然編譯器不會報錯，但執行時仍然會有錯誤
+
+// 特性
+
+//寫型別註解時，因為 unknown 本身可以包含任何型別，
+// 所以當 type A = string & unknown; 時，
+//就像是 type A = string & (string | number | void | ....);
+// 因此 A 的型別註記結果會是 string 。
+
+//當 type B = string | unknown; 時，
+// 就像是 type B = string | (string | number | void | boolean ...);
+//因此 B 的型別註記結果會是 unknown。
+
+// 跟 never 的型別註解結果剛好是顛倒過來的，
+// 因為 never 是任何型別的子型別，
+// 而除了any 、 unknown 之外的任何型別則像是 unknown 的子型別。
+
+
+
 // ===== void =====
+
 // 沒有類型
 
 // func 沒有返回值的時候 返回值類型是 void
@@ -149,6 +287,9 @@ function getObj(obj: object): object {
 
 // 我們必須要透過人工的方式  讓TS的檔案(編譯器)知道結果的型別長什麼樣子
 
+// 事實上，開發者比 TS 更了解編寫的程式碼。因此，TS 允許開發者覆蓋它的推論，這樣的機制稱為「型別斷言」。
+// 編譯器會接受開發者手動寫下的斷言，並且不會再送出警告錯誤。
+
 // ex-1 定義一個函數 得到一個數字或string 值的長度
 // 語法1: <類型>值
 // 語法2: 值 as 類型
@@ -161,6 +302,7 @@ function getString(str: number | string): number {
   if ((<string>str).length) {
     // return (<string>str).length
     return (str as string).length
+    // return (<string>str).length
   } else {
     return str.toString().length
   }
@@ -182,6 +324,66 @@ let txt // any 類型
 txt = 100
 txt = "txt"
 console.log(txt)
+
+// ===== never =====
+
+// 表示那些永遠不存在的值的型別，更具體來說像是：
+
+// 應該要回傳，但卻沒有回傳值的函式（例如：如果函式內有無窮迴圈，沒有任何結束的執行點）
+// 總是會拋出錯誤的函式
+
+// 變數也可以註記為 never 型別
+let nev: never
+
+// 不能賦值
+
+// let nev1: never = 123 // error
+
+// never vs void
+
+// 回傳 void 的函式不會終止函式，也就是說雖然沒有回傳值，但函式會繼續執行
+// 回傳 never 型別的函式則是應該會回傳，但由於函式中斷執行或者是無限迴圈，因而永遠不會回傳或回傳錯誤的函式
+  //  他的功能就如同字面上的意思 【從來沒有】，所以當一個 function 回傳 never 型別時，
+  // 代表裡面已經進入了一個無窮迴圈或是例外的中斷結果，所以才會回傳 never。
+// never 是所有型別的子型別，且可以賦值給所有型別
+// 所有型別中都包含 never。由於 never 通常用在代表函式或方法的回傳值上，想成「任何函式或方法都可能有錯誤」就更好理解了。
+
+// 「never 是所有型別的子型別」這句話，也就是說，任何型別都涵蓋 never ，因此，never 在聯合型別中總是會被省略
+ 
+type example = boolean | never // 等於 type example = boolean
+
+
+//  never 型別推論發生在以下情況：
+  // 函式沒有回傳值或return 表達式回傳的值之型別為 never
+    // 若一個函式他 100% 不會被執行完畢（或是一定會中斷），那型別推論就會是 never。
+  // 函式必須不會有任何結束的執行點
+    // 一個函式不能被執行到結束才可以被註解成 never 型別，
+    // 只要該函式不是 100% 的幾率不能被執行結束就不能是 never
+
+// 明確註記為 never 型別：函式必須不會有任何結束的執行點
+function error(message: string): never {
+  throw new Error(message);
+}
+
+// TS 推論回傳值為 Never 
+function fail() {
+  return error("Something failed");
+}
+
+// 明確註記為 never 型別：函式不會有任何結束的執行點
+function infiniteLoop(): never {
+  while (true) {
+  }
+}
+
+// // 若randow < 0.5 函式有終點，報錯
+// function randomFail(): never{
+//   let random = Math.random()
+//   if(random >0.5){
+//       throw new  Error('error')////Error: A function returning 'never' cannot have a reachable end point.
+//   }
+// }
+
 
 // ===== interface =====
 

@@ -123,7 +123,7 @@ const func2 = () => { // ts 自動推倒成 number
   return 111
 }
 
-// --- 斷言 as unknown --- 
+// --- 斷言 / 註記 as unknown --- 
 
 type Data = {
   userId: number,

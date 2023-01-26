@@ -250,7 +250,7 @@ showMsg('a', 'b', 'c', 'd', 'e')
 
 // ===== 函數重載 =====
 
-// 需求: 有一個 add 的函數  可以接收2個 string 類型的參數進行拼接  也可以接收兩個 number 類型的參數進行相加
+// 需求: 有一個 add 的函數  可以接收 2個 string 類型的參數進行拼接  也可以接收 2個 number 類型的參數進行相加
 
 // 為了能夠精確地表達，輸入是數字時，輸出也應該是數字; 而輸入是字串時，輸出也應該是字串，這時候就可以使用重載定義多個 add 函式
 
@@ -279,6 +279,289 @@ console.log(add4(10, 20))
 // console.log(add4(30, 'milk')) // error
 
 
+// ===== 泛型 =====
+
+// 在定義 函數 接口 class 的時候  不能預先確定要使用的數據類型  而是在使用的時候  才能確定
+
+// T 可以自定義名字 -> 大寫
+function getArr<T>(val: T, count: number): T[] {
+
+  // const arrT: T[] = []
+  const arr: Array<T> = []
+  for (let i = 0; i < count; i++) {
+    arr.push(val)
+  }
+  return arr
+}
+
+// 要使用 number 類型  傳入 number
+const arrNum = getArr<number>(200, 3)
+
+// 要使用 string 類型  傳入 string
+const arrStr = getArr<string>('abc', 5)
+
+console.log(arrNum)
+console.log(arrStr)
+
+console.log(arrNum[0].toFixed(3))
+console.log(arrStr[0].split(''))
 
 
+// ===== 多個泛型參數 =====
+
+function getMsg<K, V>(val1: K, val2: V): [K, V] {
+  return [val1, val2]
+}
+ 
+const arr1 = getMsg<string, number>('jack', 100.234)
+
+console.log(arr1[0].split(''))
+console.log(arr1[1].toFixed(1))
+
+
+// ===== 泛型 interface =====
+
+// 定義 interface 時  為 interface 中的屬性或方法定義 泛型類型, 在使用的時候 在指定具體的類型
+
+interface Ibase<T> {
+ data: Array<T>
+ add: (t: T) => T
+ getUserId: (id: number) => T | undefined
+}
+
+class User {
+  name: string
+  age: number
+  id?: number
+  constructor(name: string, age: number, id?: number){
+    this.name = name
+    this.age = age
+    this.id = id
+  }
+}
+
+class UserCrud implements Ibase<User> {
+  data: Array<User> = []
+  add(user: User): User {
+    user.id = Date.now() + Math.random()
+    this.data.push(user)
+    return user
+  }
+  getUserId(id: number): User | undefined {
+    return this.data.find(user => user.id === id)
+  }
+}
+
+const userCrud: UserCrud = new UserCrud()
+
+userCrud.add(new User('jack', 20))
+userCrud.add(new User('Amy', 18))
+userCrud.add(new User('XXL', 25))
+
+console.log(userCrud.data)
+const { id } = userCrud.add(new User('lucy', 25))
+const user = userCrud.getUserId(id)
+console.log(user)
+
+//  ===== 預設值 =====
+
+// 沒有給 T 的話，T 預設的型別會是 string
+
+interface WrappedValue<T = string> {
+  value: T;
+}
+
+
+//  ===== 可以使用 extends 去限制型別  =====
+
+// 把 extend 視為 == 比較好理解
+
+interface WrappedValue<T extends string> {
+  value: T;
+}
+
+// ⭕️ T 滿足 string 的型別
+const val1: WrappedValue<'Aaron' | 'PJ'> = {
+  value: 'Aaron',
+};
+
+// // ❌ T 不滿足 string 時會噴錯
+// // Type 'number' does not satisfy the constraint 'string'.
+// const val2: WrappedValue<number> = {
+//   value: 30,
+// };
+
+// // ❌ 因為沒有給 T 預設值，所以不能留空
+// // Generic type 'WrappedValue<T>' requires 1 type argument(s).
+// const val3: WrappedValue = {
+//   value: 30,
+// };
+
+
+// T7 = string
+type T7 = "hank" extends "hank" ? string : number;
+ 
+//T8、T9 = number
+type T8 = "h" extends "hank" ? string : number;
+type T9 = "hank" extends "h" ? string : number;
+ 
+//T11 = string
+type T10<T> = T extends "hank" ? string : number;
+let T11: T10<"hank">;
+ 
+//T13 = 'h'
+type T12<T> = T extends "hank" ? string : T;
+let T13: T12<"h">;
+
+//  當我們要使用陣列的時候，我們必須要讓TS知道我們將會使用陣列，不然他會報錯
+
+// 其實a也沒寫錯，只是他在屬性檢查的時候，會認為他是沒有屬性的狀態，也不確定接下來是不是會傳陣列當泛型，所以會提前報錯
+
+//使用陣列屬性會報錯
+// function a<T>(a: T) {
+//   console.log(a.length);
+// }
+//可以正常使用陣列屬性
+function b<T extends Array<T>>(b: T) {
+  console.log(b.length);
+}
+
+// ===== infer =====
+
+// TT1不是陣列，直接取後面never
+// TT2泛型是陣列，所以宣告P是1，TT2就是1
+// TT3泛型是陣列，所以宣告P是1 | “”，TT3就是union值為1 | “”
+
+type TT<T> = T extends Array<infer P> ? P : never;
+//TT1 = never
+let TT1: TT<"1">;
+//TT2 = 1
+let TT2: TT<[1]>;
+//TT3 = 1 | "" (union)
+let TT3: TT<[1, ""]>;
+
+// ===== keyof =====
+
+// K 一定要滿足是 T 的 property
+function getProperty<T, K extends keyof T>(obj: T, key: K) {
+  return obj[key];
+}
+
+// 直接讓 compiler 推斷型別
+const value2 = getProperty({ foo: 'bar' }, 'foo');
+
+// 或者將型別明確給入
+interface IPayload {
+  foo: string;
+}
+const value = getProperty<IPayload, 'foo'>({ foo: 'bar' }, 'foo');
+
+
+// ===== Generics Constraint  =====
+
+//  在我們使用泛型時，它會被視為「任何（any）」和「所有型別（all types）」。此時。若我們這樣寫會報錯，因為編譯器沒辦法確定 T 是否有對應的 .length 方法：
+// 為了要確保 T 一定帶有 .length 這個方法，我們可以透過定義 interface 搭配 T extends Interface來的方式來限制 T 能夠使用的方法：
+
+
+interface ILengthwise {
+  length: number;
+}
+
+// T 一定要滿足 ILengthwise interface
+function identity<T extends ILengthwise>(arg: T): T {
+  console.log(arg.length);
+  return arg;
+}
+
+// // 錯誤：Argument of type 'number' is not assignable to parameter of type 'ILengthwise'
+// // 因為 number 不能滿足有 length 這個 property
+// const id = identity(2);
+
+// 正確：由於有滿足 ILengthwise interface 所以可以
+const result = identity({ length: 30 });
+
+// ===== Unions and Intersection Types =====
+
+// 聯集（Unions）：能夠符合其中一種型別即可
+// 交集（Intersection）則是要能夠同時符合兩種型別
+// primitive type 通常用 & 會變成 never，因為不可能同時滿足兩個 primitive type
+// object 的話，該物件需要同時有 A type 中的屬性和 B type 中的屬性（少一個都不行）
+
+
+/** 對於 primitive type 來說 */
+type UnionPrimitive = string | number; // string | number
+type IntersectionPrimitive = string & number; // never
+
+/** 對於 object type 來說 */
+type Circle = {
+  color: string;
+  radius: number;
+};
+
+type Rectangle = {
+  color: string;
+  width: number;
+  height: number;
+};
+
+// 只需符合 Circle 的屬性或 Rectangle 的屬性即可
+const foo: Circle | Rectangle = {
+  color: 'red',
+  radius: 15,
+  height: 20,
+};
+
+// 需要同時帶有 Circle 和 Rectangle 中的屬性（缺一不可）
+const bar: Circle & Rectangle = {
+  color: 'red',
+  radius: 15,
+  width: 30,
+  height: 20,
+};
+
+// Union Types
+
+// 使用 Union 來定義伺服器回應的狀態
+
+type NetworkLoadingState = {
+  state: 'loading';
+};
+
+type NetworkFailedState = {
+  state: 'failed';
+  code: number;
+};
+
+type NetworkSuccessState = {
+  state: 'success';
+  response: {
+    title: string;
+    duration: number;
+    summary: string;
+  };
+};
+
+// Create a type which represents only one of the above types
+// but you aren't sure which it is yet.
+type NetworkState = NetworkLoadingState | NetworkFailedState | NetworkSuccessState;
+
+// Intersection Types
+
+// 使用 Intersection Types 為每一個 response 加上 Error Handling：
+
+interface ErrorHandling {
+  success: boolean;
+  error?: { message: string };
+}
+
+interface ArtworksData {
+  artworks: { title: string }[];
+}
+
+interface ArtistsData {
+  artists: { name: string }[];
+}
+
+type ArtworksResponse = ArtworksData & ErrorHandling;
+type ArtistsResponse = ArtistsData & ErrorHandling;
 
