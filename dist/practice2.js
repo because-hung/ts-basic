@@ -261,3 +261,56 @@ console.log(userCrud.data);
 const { id } = userCrud.add(new User('lucy', 25));
 const user = userCrud.getUserId(id);
 console.log(user);
+// ⭕️ T 滿足 string 的型別
+const val1 = {
+    value: 'Aaron',
+};
+let T11;
+let T13;
+//  當我們要使用陣列的時候，我們必須要讓TS知道我們將會使用陣列，不然他會報錯
+// 其實a也沒寫錯，只是他在屬性檢查的時候，會認為他是沒有屬性的狀態，也不確定接下來是不是會傳陣列當泛型，所以會提前報錯
+//使用陣列屬性會報錯
+// function a<T>(a: T) {
+//   console.log(a.length);
+// }
+//可以正常使用陣列屬性
+function b(b) {
+    console.log(b.length);
+}
+//TT1 = never
+let TT1;
+//TT2 = 1
+let TT2;
+//TT3 = 1 | "" (union)
+let TT3;
+// ===== keyof =====
+// K 一定要滿足是 T 的 property
+function getProperty(obj, key) {
+    return obj[key];
+}
+// 直接讓 compiler 推斷型別
+const value2 = getProperty({ foo: 'bar' }, 'foo');
+const value = getProperty({ foo: 'bar' }, 'foo');
+// T 一定要滿足 ILengthwise interface
+function identity(arg) {
+    console.log(arg.length);
+    return arg;
+}
+// // 錯誤：Argument of type 'number' is not assignable to parameter of type 'ILengthwise'
+// // 因為 number 不能滿足有 length 這個 property
+// const id = identity(2);
+// 正確：由於有滿足 ILengthwise interface 所以可以
+const result = identity({ length: 30 });
+// 只需符合 Circle 的屬性或 Rectangle 的屬性即可
+const foo = {
+    color: 'red',
+    radius: 15,
+    height: 20,
+};
+// 需要同時帶有 Circle 和 Rectangle 中的屬性（缺一不可）
+const bar = {
+    color: 'red',
+    radius: 15,
+    width: 30,
+    height: 20,
+};
